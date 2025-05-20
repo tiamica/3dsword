@@ -1,7 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useGameStore } from "../../lib/stores/useGameStore";
+import ReadyPlayerMeAvatar from "./ReadyPlayerMeAvatar";
+import { ENEMY_AVATAR_URLS, ANIMATIONS } from "../../lib/constants";
 
 interface EnemyProps {
   id: string;
@@ -9,8 +11,14 @@ interface EnemyProps {
 }
 
 const Enemy = ({ id, position }: EnemyProps) => {
-  const enemyRef = useRef<THREE.Mesh>(null);
+  const enemyRef = useRef<THREE.Group>(null);
   const { playerPosition, removeEnemy, enemies, phase } = useGameStore();
+  const [isMoving, setIsMoving] = useState(false);
+  const [avatarUrl] = useState(() => {
+    // Randomly select one of the enemy avatar URLs
+    const randomIndex = Math.floor(Math.random() * ENEMY_AVATAR_URLS.length);
+    return ENEMY_AVATAR_URLS[randomIndex];
+  });
   
   // Enemy movement speed
   const speed = 1.5;
@@ -26,8 +34,14 @@ const Enemy = ({ id, position }: EnemyProps) => {
       playerPosition.z - enemyRef.current.position.z
     );
     
+    // Check if the enemy is moving (for animation state)
+    const isCurrentlyMoving = direction.length() > 0.1;
+    if (isCurrentlyMoving !== isMoving) {
+      setIsMoving(isCurrentlyMoving);
+    }
+    
     // Normalize and apply speed
-    if (direction.length() > 0.1) {
+    if (isCurrentlyMoving) {
       direction.normalize();
       direction.multiplyScalar(speed * delta);
       
@@ -69,15 +83,19 @@ const Enemy = ({ id, position }: EnemyProps) => {
   }, [id, removeEnemy]);
   
   return (
-    <mesh
+    <group
       ref={enemyRef}
       position={[position.x, position.y, position.z]}
-      scale={[1, 2, 1]}
-      castShadow
+      scale={[0.8, 0.8, 0.8]} // Scale down the enemies slightly
     >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="red" />
-    </mesh>
+      <ReadyPlayerMeAvatar 
+        avatarUrl={avatarUrl}
+        position={[0, 0, 0]}
+        scale={[1, 1, 1]}
+        animation={ANIMATIONS.IDLE}
+        isMoving={isMoving}
+      />
+    </group>
   );
 };
 

@@ -11,6 +11,7 @@ const Player = () => {
   const playerRef = useRef<THREE.Group>(null);
   const { isSwinging, startSwing } = useSwordSwing();
   const { playerPosition, setPlayerPosition, phase, playerAvatarUrl } = useGameStore();
+  const [isMoving, setIsMoving] = useState(false);
   
   // Get keyboard controls state
   const [, getKeyboardControls] = useKeyboardControls();
@@ -20,6 +21,7 @@ const Player = () => {
   
   // Track the movement direction
   const [moveDirection] = useState(() => new THREE.Vector3());
+  const [rotationY, setRotationY] = useState(0);
   
   // Handle player movement in the game loop
   useFrame((state, delta) => {
@@ -36,8 +38,34 @@ const Player = () => {
     if (leftward) moveDirection.x -= 1;
     if (rightward) moveDirection.x += 1;
     
-    // Normalize movement direction if moving diagonally
-    if (moveDirection.length() > 0) {
+    // Check if player is moving (for animation state)
+    const isCurrentlyMoving = moveDirection.length() > 0;
+    if (isCurrentlyMoving !== isMoving) {
+      setIsMoving(isCurrentlyMoving);
+    }
+    
+    // Handle rotation based on movement direction
+    if (isCurrentlyMoving) {
+      // Calculate angle in radians for player rotation
+      let targetRotation = Math.atan2(moveDirection.x, moveDirection.z);
+      
+      // Update rotation smoothly
+      const rotationSpeed = 10 * delta;
+      const angleDiff = targetRotation - rotationY;
+      
+      // Ensure we rotate the shortest way
+      let normalizeDiff = angleDiff;
+      while (normalizeDiff > Math.PI) normalizeDiff -= 2 * Math.PI;
+      while (normalizeDiff < -Math.PI) normalizeDiff += 2 * Math.PI;
+      
+      setRotationY(rotationY + normalizeDiff * rotationSpeed);
+      
+      // Apply rotation to player model
+      if (playerRef.current) {
+        playerRef.current.rotation.y = rotationY;
+      }
+      
+      // Normalize movement direction for consistent speed
       moveDirection.normalize();
     }
     
@@ -65,7 +93,7 @@ const Player = () => {
     }
   });
   
-  // Default ReadyPlayerMe avatar URL to use if none provided
+  // Default ReadyPlayerMe avatar URL if none is provided
   const defaultAvatarUrl = "https://models.readyplayer.me/65843dbeb966a506c88a5e56.glb";
   
   return (
@@ -73,15 +101,17 @@ const Player = () => {
       ref={playerRef} 
       position={[playerPosition.x, playerPosition.y, playerPosition.z]}
     >
-      {playerAvatarUrl ? (
-        // Use ReadyPlayerMe avatar if available
+      {playerAvatarUrl || defaultAvatarUrl ? (
+        // Use ReadyPlayerMe avatar 
         <ReadyPlayerMeAvatar 
-          avatarUrl={playerAvatarUrl} 
+          avatarUrl={playerAvatarUrl || defaultAvatarUrl} 
           position={[0, 0, 0]} 
           scale={[1, 1, 1]} 
+          isMoving={isMoving}
+          isAttacking={isSwinging}
         />
       ) : (
-        // Fallback to default avatar model
+        // Fallback to default avatar model (should not happen)
         <>
           {/* Player body */}
           <mesh castShadow position={[0, 1, 0]}>
@@ -97,8 +127,10 @@ const Player = () => {
         </>
       )}
       
-      {/* Player's sword */}
-      <Sword isSwinging={isSwinging} />
+      {/* Only show separate sword when not using avatar (avatars have built-in animations) */}
+      {!playerAvatarUrl && !defaultAvatarUrl && (
+        <Sword isSwinging={isSwinging} />
+      )}
     </group>
   );
 };

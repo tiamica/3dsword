@@ -4,6 +4,7 @@ import { Input } from "./input";
 import { Button } from "./button";
 import { Label } from "./label";
 import { useGameStore } from "../../lib/stores/useGameStore";
+import { DEFAULT_PLAYER_AVATAR_URL } from "../../lib/constants";
 
 export const AvatarForm = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -18,12 +19,13 @@ export const AvatarForm = () => {
     }
   };
 
-  // Default ReadyPlayerMe avatar URL as an example
-  const defaultAvatarUrl = "https://models.readyplayer.me/65843dbeb966a506c88a5e56.glb";
-
   const handleUseDefault = () => {
-    setPlayerAvatarUrl(defaultAvatarUrl);
+    setPlayerAvatarUrl(DEFAULT_PLAYER_AVATAR_URL);
     setIsFormOpen(false);
+  };
+
+  const createReadyPlayerMeURL = () => {
+    window.open("https://readyplayer.me/", "_blank");
   };
 
   return (
@@ -54,6 +56,14 @@ export const AvatarForm = () => {
                 <p className="text-xs text-gray-600">
                   Paste the URL to your Ready Player Me avatar (.glb file)
                 </p>
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  className="text-xs p-0 h-auto" 
+                  onClick={createReadyPlayerMeURL}
+                >
+                  Create your own avatar at ReadyPlayer.me
+                </Button>
               </div>
             </form>
           </CardContent>
