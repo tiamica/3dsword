@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { ANIMATIONS } from '../../lib/constants';
+import { useModelAnimation } from '../../lib/hooks/useModelAnimation';
 
 interface GameModelProps {
   modelPath: string;
@@ -24,10 +24,17 @@ const GameModel = ({
   isAttacking = false
 }: GameModelProps) => {
   const [modelLoaded, setModelLoaded] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
   const modelRef = useRef<THREE.Group>(null);
   
   // Load the model
   const { scene: modelScene } = useGLTF(modelPath);
+  
+  // Set up animations
+  const { animationState, updateAnimation } = useModelAnimation({
+    isMoving,
+    isAttacking
+  });
   
   // Set up the model once it's loaded
   useEffect(() => {
@@ -43,51 +50,51 @@ const GameModel = ({
           
           // Apply custom color if provided
           if (color && node.material) {
-            node.material = new THREE.MeshStandardMaterial({ color });
+            if (Array.isArray(node.material)) {
+              node.material.forEach(mat => {
+                if (mat instanceof THREE.MeshStandardMaterial) {
+                  mat.color.set(color);
+                }
+              });
+            } else if (node.material instanceof THREE.MeshStandardMaterial) {
+              node.material.color.set(color);
+            }
           }
         }
       });
+      
+      // Store reference to model for animations
+      if (modelRef.current) {
+        modelRef.current.add(modelScene.clone());
+      }
     }
   }, [modelScene, modelPath, color]);
   
-  // Basic animation based on state
+  // Update animations in the game loop
   useFrame((state, delta) => {
     if (modelRef.current && modelLoaded) {
-      if (isAttacking) {
-        // Simple attack animation - rotate the model forward and back
-        const attackSpeed = 10;
-        const attackAmount = Math.sin(state.clock.getElapsedTime() * attackSpeed) * 0.2;
-        modelRef.current.rotation.x = rotation[0] + attackAmount;
-      } else if (isMoving) {
-        // Simple movement animation - slight bouncing
-        const bounceSpeed = 8;
-        const bounceAmount = Math.abs(Math.sin(state.clock.getElapsedTime() * bounceSpeed)) * 0.1;
-        modelRef.current.position.y = position[1] + bounceAmount;
-      } else {
-        // Idle animation - subtle breathing movement
-        const breathSpeed = 1.5;
-        const breathAmount = Math.sin(state.clock.getElapsedTime() * breathSpeed) * 0.05;
-        modelRef.current.position.y = position[1] + breathAmount;
-      }
+      updateAnimation(modelRef.current, delta);
     }
   });
   
   return (
     <group 
-      ref={modelRef} 
+      ref={groupRef} 
       position={position} 
       scale={scale} 
       rotation={rotation}
     >
-      {modelLoaded ? (
-        <primitive object={modelScene.clone()} />
-      ) : (
-        // Fallback while loading
-        <mesh castShadow>
-          <boxGeometry args={[1, 2, 1]} />
-          <meshStandardMaterial color={color || "#5555FF"} />
-        </mesh>
-      )}
+      <group ref={modelRef}>
+        {modelLoaded ? (
+          <primitive object={modelScene.clone()} />
+        ) : (
+          // Fallback while loading
+          <mesh castShadow>
+            <boxGeometry args={[1, 2, 1]} />
+            <meshStandardMaterial color={color || "#5555FF"} />
+          </mesh>
+        )}
+      </group>
     </group>
   );
 };
