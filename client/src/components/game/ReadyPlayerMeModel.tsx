@@ -4,7 +4,7 @@ import { useGLTF, useAnimations } from "@react-three/drei";
 import * as THREE from "three";
 import { GLTF } from "three-stdlib";
 import { useReadyPlayerMeAnimation } from "../../lib/hooks/useReadyPlayerMeAnimation";
-import { getAnimations } from "../../lib/utils/loadAnimations";
+import { RPM_ANIMATION_MAPPING } from "../../lib/utils/loadAnimations";
 
 type GLTFResult = GLTF & {
   nodes: {

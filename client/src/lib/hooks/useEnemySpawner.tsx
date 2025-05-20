@@ -9,14 +9,62 @@ export const useEnemySpawner = () => {
   const spawnRadius = 15;
   const minSpawnInterval = 2000; // 2 seconds
   
-  // Get a random position around the player
+  // Get a random position anywhere around the game world boundaries
   const getRandomSpawnPosition = useCallback(() => {
-    // Generate a random angle
-    const angle = Math.random() * Math.PI * 2;
+    // Game world boundary
+    const worldSize = 20;
     
-    // Calculate position on the circle
-    const x = playerPosition.x + Math.cos(angle) * spawnRadius;
-    const z = playerPosition.z + Math.sin(angle) * spawnRadius;
+    // Determine spawn method (0 = edge of world, 1 = random in world)
+    const spawnMethod = Math.random() > 0.5 ? 0 : 1;
+    
+    let x, z;
+    
+    if (spawnMethod === 0) {
+      // Spawn on the edge of the world
+      const side = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+      
+      if (side === 0) {
+        // Top edge
+        x = (Math.random() * 2 - 1) * worldSize;
+        z = -worldSize;
+      } else if (side === 1) {
+        // Right edge
+        x = worldSize;
+        z = (Math.random() * 2 - 1) * worldSize;
+      } else if (side === 2) {
+        // Bottom edge
+        x = (Math.random() * 2 - 1) * worldSize;
+        z = worldSize;
+      } else {
+        // Left edge
+        x = -worldSize;
+        z = (Math.random() * 2 - 1) * worldSize;
+      }
+    } else {
+      // Spawn randomly in the world, but away from the player
+      // Default values in case the loop doesn't run
+      x = -worldSize;
+      z = -worldSize;
+      
+      // Try to find a valid position
+      for (let attempts = 0; attempts < 10; attempts++) {
+        const tempX = (Math.random() * 2 - 1) * worldSize;
+        const tempZ = (Math.random() * 2 - 1) * worldSize;
+        
+        // Calculate distance to player
+        const distanceToPlayer = Math.sqrt(
+          Math.pow(tempX - playerPosition.x, 2) + 
+          Math.pow(tempZ - playerPosition.z, 2)
+        );
+        
+        // Make sure spawn is at least 10 units away from player
+        if (distanceToPlayer > 10) {
+          x = tempX;
+          z = tempZ;
+          break;
+        }
+      }
+    }
     
     return { x, y: 1, z };
   }, [playerPosition]);

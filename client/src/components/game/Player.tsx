@@ -5,8 +5,8 @@ import * as THREE from "three";
 import { useGameStore } from "../../lib/stores/useGameStore";
 import Sword from "./Sword";
 import { useSwordSwing } from "../../lib/hooks/useSwordSwing";
-import GameModel from "./GameModel";
-import { PLAYER_MODEL_PATH, ANIMATIONS } from "../../lib/constants";
+import AnimatedModel from "./AnimatedModel";
+import { PLAYER_MODEL_PATH } from "../../lib/constants";
 
 const Player = () => {
   const playerRef = useRef<THREE.Group>(null);
@@ -99,27 +99,13 @@ const Player = () => {
       ref={playerRef} 
       position={[playerPosition.x, playerPosition.y, playerPosition.z]}
     >
-      {playerAvatarUrl ? (
-        // Use custom model if player provided a URL
-        <GameModel 
-          modelPath={playerAvatarUrl} 
-          position={[0, 0, 0]} 
-          scale={[1, 1, 1]} 
-          color="#3355FF"
-          isMoving={isMoving}
-          isAttacking={isSwinging}
-        />
-      ) : (
-        // Use default player model
-        <GameModel 
-          modelPath={PLAYER_MODEL_PATH} 
-          position={[0, 0, 0]} 
-          scale={[1, 1, 1]} 
-          color="#3355FF"
-          isMoving={isMoving}
-          isAttacking={isSwinging}
-        />
-      )}
+      <AnimatedModel 
+        modelPath={playerAvatarUrl || PLAYER_MODEL_PATH}
+        position={[0, 0, 0]} 
+        scale={[1, 1, 1]} 
+        isMoving={isMoving}
+        isAttacking={isSwinging}
+      />
       
       {/* Sword is part of the model now with animations */}
     </group>
