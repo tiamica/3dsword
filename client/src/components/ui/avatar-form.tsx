@@ -22,6 +22,7 @@ export const AvatarForm = () => {
   const handleUseDefault = () => {
     setPlayerAvatarUrl(PLAYER_MODEL_PATH);
     setIsFormOpen(false);
+    console.log("Using default avatar:", PLAYER_MODEL_PATH);
   };
 
   const createReadyPlayerMeURL = () => {

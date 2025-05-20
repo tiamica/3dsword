@@ -6,8 +6,8 @@ export const ENEMY_AVATAR_URLS = [
   "https://models.readyplayer.me/67b669d71baa959986313bf7.glb"
 ];
 
-// Local model for fallback
-export const PLAYER_MODEL_PATH = "/models/player.glb";
+// Default models
+export const PLAYER_MODEL_PATH = "https://models.readyplayer.me/67b64c34a70de751bf534803.glb";
 export const ENEMY_MODEL_PATH = "/models/enemy.glb";
 
 // Animation states - these don't match specific animations since we're using simple models
