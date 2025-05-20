@@ -2,8 +2,8 @@ import { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useGameStore } from "../../lib/stores/useGameStore";
-import ReadyPlayerMeAvatar from "./ReadyPlayerMeAvatar";
-import { ENEMY_AVATAR_URLS, ANIMATIONS } from "../../lib/constants";
+import GameModel from "./GameModel";
+import { ENEMY_MODEL_PATH, ANIMATIONS } from "../../lib/constants";
 
 interface EnemyProps {
   id: string;
@@ -14,11 +14,7 @@ const Enemy = ({ id, position }: EnemyProps) => {
   const enemyRef = useRef<THREE.Group>(null);
   const { playerPosition, removeEnemy, enemies, phase } = useGameStore();
   const [isMoving, setIsMoving] = useState(false);
-  const [avatarUrl] = useState(() => {
-    // Randomly select one of the enemy avatar URLs
-    const randomIndex = Math.floor(Math.random() * ENEMY_AVATAR_URLS.length);
-    return ENEMY_AVATAR_URLS[randomIndex];
-  });
+  // We're now using local 3D model instead of random avatar URLs
   
   // Enemy movement speed
   const speed = 1.5;
@@ -88,11 +84,11 @@ const Enemy = ({ id, position }: EnemyProps) => {
       position={[position.x, position.y, position.z]}
       scale={[0.8, 0.8, 0.8]} // Scale down the enemies slightly
     >
-      <ReadyPlayerMeAvatar 
-        avatarUrl={avatarUrl}
+      <GameModel 
+        modelPath={ENEMY_MODEL_PATH}
         position={[0, 0, 0]}
         scale={[1, 1, 1]}
-        animation={ANIMATIONS.IDLE}
+        color="#FF3333"
         isMoving={isMoving}
       />
     </group>

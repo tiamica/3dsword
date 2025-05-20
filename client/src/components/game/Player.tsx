@@ -5,7 +5,8 @@ import * as THREE from "three";
 import { useGameStore } from "../../lib/stores/useGameStore";
 import Sword from "./Sword";
 import { useSwordSwing } from "../../lib/hooks/useSwordSwing";
-import ReadyPlayerMeAvatar from "./ReadyPlayerMeAvatar";
+import GameModel from "./GameModel";
+import { PLAYER_MODEL_PATH, ANIMATIONS } from "../../lib/constants";
 
 const Player = () => {
   const playerRef = useRef<THREE.Group>(null);
@@ -93,44 +94,34 @@ const Player = () => {
     }
   });
   
-  // Default ReadyPlayerMe avatar URL if none is provided
-  const defaultAvatarUrl = "https://models.readyplayer.me/65843dbeb966a506c88a5e56.glb";
-  
   return (
     <group 
       ref={playerRef} 
       position={[playerPosition.x, playerPosition.y, playerPosition.z]}
     >
-      {playerAvatarUrl || defaultAvatarUrl ? (
-        // Use ReadyPlayerMe avatar 
-        <ReadyPlayerMeAvatar 
-          avatarUrl={playerAvatarUrl || defaultAvatarUrl} 
+      {playerAvatarUrl ? (
+        // Use custom model if player provided a URL
+        <GameModel 
+          modelPath={playerAvatarUrl} 
           position={[0, 0, 0]} 
           scale={[1, 1, 1]} 
+          color="#3355FF"
           isMoving={isMoving}
           isAttacking={isSwinging}
         />
       ) : (
-        // Fallback to default avatar model (should not happen)
-        <>
-          {/* Player body */}
-          <mesh castShadow position={[0, 1, 0]}>
-            <boxGeometry args={[1, 2, 1]} />
-            <meshStandardMaterial color="blue" />
-          </mesh>
-          
-          {/* Player head */}
-          <mesh castShadow position={[0, 2.5, 0]}>
-            <sphereGeometry args={[0.5, 16, 16]} />
-            <meshStandardMaterial color="lightblue" />
-          </mesh>
-        </>
+        // Use default player model
+        <GameModel 
+          modelPath={PLAYER_MODEL_PATH} 
+          position={[0, 0, 0]} 
+          scale={[1, 1, 1]} 
+          color="#3355FF"
+          isMoving={isMoving}
+          isAttacking={isSwinging}
+        />
       )}
       
-      {/* Only show separate sword when not using avatar (avatars have built-in animations) */}
-      {!playerAvatarUrl && !defaultAvatarUrl && (
-        <Sword isSwinging={isSwinging} />
-      )}
+      {/* Sword is part of the model now with animations */}
     </group>
   );
 };

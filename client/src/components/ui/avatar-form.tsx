@@ -4,7 +4,7 @@ import { Input } from "./input";
 import { Button } from "./button";
 import { Label } from "./label";
 import { useGameStore } from "../../lib/stores/useGameStore";
-import { DEFAULT_PLAYER_AVATAR_URL } from "../../lib/constants";
+import { PLAYER_MODEL_PATH } from "../../lib/constants";
 
 export const AvatarForm = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -20,7 +20,7 @@ export const AvatarForm = () => {
   };
 
   const handleUseDefault = () => {
-    setPlayerAvatarUrl(DEFAULT_PLAYER_AVATAR_URL);
+    setPlayerAvatarUrl(PLAYER_MODEL_PATH);
     setIsFormOpen(false);
   };
 
