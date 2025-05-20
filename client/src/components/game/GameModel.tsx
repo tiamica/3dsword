@@ -28,7 +28,7 @@ const GameModel = ({
   const modelRef = useRef<THREE.Group>(null);
   
   // Load the model
-  const { scene: modelScene } = useGLTF(modelPath);
+  const { scene: modelScene } = useGLTF(modelPath, true);
   
   // Set up animations
   const { animationState, updateAnimation } = useModelAnimation({
@@ -86,7 +86,7 @@ const GameModel = ({
     >
       <group ref={modelRef}>
         {modelLoaded ? (
-          <primitive object={modelScene.clone()} />
+          <primitive object={modelScene.clone(true)} />
         ) : (
           // Fallback while loading
           <mesh castShadow>
