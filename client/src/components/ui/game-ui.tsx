@@ -4,6 +4,7 @@ import { useAudio } from "../../lib/stores/useAudio";
 import { cn } from "../../lib/utils";
 import { Button } from "./button";
 import { Card, CardContent } from "./card";
+import { AvatarForm } from "./avatar-form";
 
 export const GameUI = () => {
   const { score, phase, restart, enemies } = useGameStore();
@@ -40,6 +41,9 @@ export const GameUI = () => {
           </Button>
         </div>
       </div>
+      
+      {/* Avatar Form */}
+      <AvatarForm />
 
       {/* Game over screen */}
       {phase === "ended" && (

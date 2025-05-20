@@ -5,11 +5,12 @@ import * as THREE from "three";
 import { useGameStore } from "../../lib/stores/useGameStore";
 import Sword from "./Sword";
 import { useSwordSwing } from "../../lib/hooks/useSwordSwing";
+import ReadyPlayerMeAvatar from "./ReadyPlayerMeAvatar";
 
 const Player = () => {
   const playerRef = useRef<THREE.Group>(null);
   const { isSwinging, startSwing } = useSwordSwing();
-  const { playerPosition, setPlayerPosition, phase } = useGameStore();
+  const { playerPosition, setPlayerPosition, phase, playerAvatarUrl } = useGameStore();
   
   // Get keyboard controls state
   const [, getKeyboardControls] = useKeyboardControls();
@@ -64,22 +65,37 @@ const Player = () => {
     }
   });
   
+  // Default ReadyPlayerMe avatar URL to use if none provided
+  const defaultAvatarUrl = "https://models.readyplayer.me/65843dbeb966a506c88a5e56.glb";
+  
   return (
     <group 
       ref={playerRef} 
       position={[playerPosition.x, playerPosition.y, playerPosition.z]}
     >
-      {/* Player body */}
-      <mesh castShadow position={[0, 1, 0]}>
-        <boxGeometry args={[1, 2, 1]} />
-        <meshStandardMaterial color="blue" />
-      </mesh>
-      
-      {/* Player head */}
-      <mesh castShadow position={[0, 2.5, 0]}>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshStandardMaterial color="lightblue" />
-      </mesh>
+      {playerAvatarUrl ? (
+        // Use ReadyPlayerMe avatar if available
+        <ReadyPlayerMeAvatar 
+          avatarUrl={playerAvatarUrl} 
+          position={[0, 0, 0]} 
+          scale={[1, 1, 1]} 
+        />
+      ) : (
+        // Fallback to default avatar model
+        <>
+          {/* Player body */}
+          <mesh castShadow position={[0, 1, 0]}>
+            <boxGeometry args={[1, 2, 1]} />
+            <meshStandardMaterial color="blue" />
+          </mesh>
+          
+          {/* Player head */}
+          <mesh castShadow position={[0, 2.5, 0]}>
+            <sphereGeometry args={[0.5, 16, 16]} />
+            <meshStandardMaterial color="lightblue" />
+          </mesh>
+        </>
+      )}
       
       {/* Player's sword */}
       <Sword isSwinging={isSwinging} />
