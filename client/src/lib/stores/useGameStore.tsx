@@ -25,6 +25,7 @@ interface GameState {
   enemies: Enemy[];
   swordSwinging: boolean;
   lastSpawnTime: number;
+  playerAvatarUrl: string | null;
   
   // Actions
   start: () => void;
@@ -36,6 +37,7 @@ interface GameState {
   removeEnemy: (id: string) => void;
   setSwordSwinging: (isSwinging: boolean) => void;
   triggerSwordSwing: () => void;
+  setPlayerAvatarUrl: (url: string) => void;
 }
 
 export const useGameStore = create<GameState>()(
@@ -47,6 +49,7 @@ export const useGameStore = create<GameState>()(
     enemies: [],
     swordSwinging: false,
     lastSpawnTime: 0,
+    playerAvatarUrl: null,
     
     // Game control actions
     start: () => {
@@ -110,6 +113,11 @@ export const useGameStore = create<GameState>()(
           set({ swordSwinging: false });
         }, 500);
       }
+    },
+    
+    // Set player avatar URL
+    setPlayerAvatarUrl: (url) => {
+      set({ playerAvatarUrl: url });
     }
   }))
 );

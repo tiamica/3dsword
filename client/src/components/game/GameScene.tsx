@@ -4,6 +4,7 @@ import { useKeyboardControls } from "@react-three/drei";
 import * as THREE from "three";
 import Ground from "./Ground";
 import Player from "./Player";
+import Enemy from "./Enemy";
 import { useGameStore } from "../../lib/stores/useGameStore";
 import { useEnemySpawner } from "../../lib/hooks/useEnemySpawner";
 import { useCollisionDetection } from "../../lib/hooks/useCollisionDetection";
@@ -90,15 +91,11 @@ const GameScene = () => {
       
       {/* Render all enemies */}
       {enemies.map(enemy => (
-        <mesh
-          key={enemy.id}
-          position={[enemy.position.x, enemy.position.y, enemy.position.z]}
-          scale={[1, 2, 1]}
-          castShadow
-        >
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
+        <Enemy 
+          key={enemy.id} 
+          id={enemy.id} 
+          position={enemy.position} 
+        />
       ))}
     </group>
   );
